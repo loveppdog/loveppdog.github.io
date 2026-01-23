@@ -1,0 +1,14 @@
+baseURL = "https://loveppdog.github.io/"
+languageCode = "zh-cn"
+title = "自动驾驶/机器人学习笔记"
+theme = "paper"
+
+[params]
+  author = "ppdog"
+  description = "每日学习记录 - 自动驾驶与机器人技术"
+  keywords = ["自动驾驶", "机器人", "AI", "学习笔记"]
+  
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+  series = "series"

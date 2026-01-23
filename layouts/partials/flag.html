@@ -1,0 +1,9 @@
+<!-- 标签云组件 -->
+<div class="tag-cloud">
+  {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+    <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}" 
+       class="tag-size-{{ $taxonomy.Count }}">
+      {{ $name }} ({{ $taxonomy.Count }})
+    </a>
+  {{ end }}
+</div>
