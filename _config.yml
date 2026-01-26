@@ -1,40 +1,32 @@
-# 基本配置
-title: "ppdog的学习笔记"
-description: "自动驾驶与机器人技术学习记录"
+# 站点信息
+title: "ppdog 学习笔记"
+description: "自动驾驶与机器人技术每日学习记录"
 baseurl: ""
 url: "https://loveppdog.github.io"
 
 # 作者信息
-author:
-  name: "ppdog"
-  email: "your-email@example.com"
+author: "ppdog"
+email: "your-email@example.com"
+github_username: "loveppdog"
 
-# 构建设置
-markdown: kramdown
-highlighter: rouge
-permalink: pretty
+# 导航配置
+navigation:
+  - title: "首页"
+    url: "/"
+    icon: "home"
+  - title: "文章"
+    url: "/posts/"
+    icon: "newspaper"
+  - title: "分类"
+    url: "/categories/"
+    icon: "folder"
+  - title: "标签"
+    url: "/tags/"
+    icon: "tags"
 
-# 时区
-timezone: Asia/Shanghai
-
-# 插件
-plugins:
-  - jekyll-feed
-  - jekyll-seo-tag
-  - jekyll-sitemap
-
-# SEO优化
-google_analytics: "UA-XXXXXXXX-X"  # 可选
-
-# 社交链接（可选）
-social_links:
-  github: "loveppdog"
-  twitter: "yourtwitter"
-  email: "your-email@example.com"
-
-# 排除文件
-exclude:
-  - Gemfile
-  - Gemfile.lock
-  - node_modules
-  - vendor
+# 默认布局
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
