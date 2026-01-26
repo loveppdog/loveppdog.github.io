@@ -1,9 +1,28 @@
-title: 你的网站标题
-description: 网站描述
-theme: minima  # 或选择其他Jekyll主题
+# _config.yml
+title: "ppdog的学习笔记"
+description: "自动驾驶与机器人技术学习记录"
+baseurl: ""  # 如果仓库是 username.github.io 就空着
+url: "https://loveppdog.github.io"
 
-# 配置posts路径
+# 主题设置
+theme: minima
+
+# 构建设置
+permalink: /:year/:month/:day/:title.html
 collections:
   posts:
     output: true
-    permalink: /:year/:month/:day/:title.html
+    permalink: /:collection/:path/
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# 排除文件
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor

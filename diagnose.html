@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Jekyll诊断页面</h1>
+  
+  <h2>1. 站点配置</h2>
+  <p>站点标题: {{ site.title }}</p>
+  <p>文章总数: {{ site.posts | size }}</p>
+  
+  <h2>2. 所有文章列表</h2>
+  <ul>
+  {% for post in site.posts %}
+    <li>{{ post.title }} ({{ post.date }}) - {{ post.url }}</li>
+  {% else %}
+    <li><strong>没有找到文章！</strong></li>
+  {% endfor %}
+  </ul>
+  
+  <h2>3. 当前页面信息</h2>
+  <p>页面标题: {{ page.title }}</p>
+  <p>页面URL: {{ page.url }}</p>
+</body>
+</html>
