@@ -248,5 +248,14 @@
       </p>
     </footer>
   </div>
+    <script>
+    // 简单访问计数
+    if (localStorage) {
+        let visitCount = localStorage.getItem('visitCount') || 0;
+        visitCount++;
+        localStorage.setItem('visitCount', visitCount);
+        console.log(`这是你第${visitCount}次访问本站！`);
+    }
+    </script>
 </body>
 </html>
