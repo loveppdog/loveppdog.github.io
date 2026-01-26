@@ -1,33 +1,32 @@
-# 站点配置
-title: "ppdog 自动驾驶/机器人学习笔记"
-description: "每日学习记录，探索自动驾驶与机器人技术"
+# 站点信息
+title: "ppdog 学习笔记"
+description: "自动驾驶与机器人技术每日学习记录"
 baseurl: ""
 url: "https://loveppdog.github.io"
 
-# 页面配置
+# 作者信息
+author: "ppdog"
+email: "your-email@example.com"
+github_username: "loveppdog"
+
+# 导航配置
+navigation:
+  - title: "首页"
+    url: "/"
+    icon: "home"
+  - title: "文章"
+    url: "/posts/"
+    icon: "newspaper"
+  - title: "分类"
+    url: "/categories/"
+    icon: "folder"
+  - title: "标签"
+    url: "/tags/"
+    icon: "tags"
+
+# 默认布局
 defaults:
   - scope:
       path: ""
     values:
       layout: "default"
-      sidebar: true
-      background: true
-
-# 导航菜单
-navigation:
-  - title: "首页"
-    url: "/"
-    icon: "home"
-    nav_order: 1
-  - title: "学习笔记"
-    url: "/posts/"
-    icon: "book"
-    nav_order: 2
-  - title: "分类"
-    url: "/categories/"
-    icon: "folder"
-    nav_order: 3
-  - title: "标签"
-    url: "/tags/"
-    icon: "tags"
-    nav_order: 4
