@@ -24,9 +24,16 @@ navigation:
     url: "/tags/"
     icon: "tags"
 
-# 默认布局
+# 启用页面集合
+collections:
+  pages:
+    output: true
+    permalink: /:path/
+
+# 默认页面布局
 defaults:
   - scope:
-      path: ""
+      path: "_pages"
+      type: "pages"
     values:
-      layout: "default"
+      layout: "page"
