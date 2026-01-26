@@ -1,0 +1,9 @@
+title: 你的网站标题
+description: 网站描述
+theme: minima  # 或选择其他Jekyll主题
+
+# 配置posts路径
+collections:
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:title.html
