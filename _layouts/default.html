@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ page.title }} - {{ site.title }}</title>
     
-    <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
@@ -18,9 +17,9 @@
             --accent-color: #8b5cf6;
             --text-color: #1f2937;
             --bg-color: #f8fafc;
-            --sidebar-bg: linear-gradient(180deg, #1e40af 0%, #3730a3 100%);
-            --content-bg: #ffffff;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            --content-bg: rgba(255, 255, 255, 0.92);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
         * {
@@ -31,14 +30,62 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
             color: var(--text-color);
             line-height: 1.6;
             display: flex;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
         }
         
-        /* 侧边栏样式 */
+        /* 动态背景图片系统 */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+        
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.3;
+            filter: brightness(0.3) contrast(1.2);
+            transition: opacity 1.5s ease-in-out, transform 1.5s ease-in-out;
+        }
+        
+        .bg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                135deg,
+                rgba(15, 23, 42, 0.7) 0%,
+                rgba(30, 41, 59, 0.6) 50%,
+                rgba(15, 23, 42, 0.7) 100%
+            );
+            z-index: -1;
+        }
+        
+        /* 背景动画效果 */
+        .background-image.zoomed {
+            transform: scale(1.1);
+        }
+        
+        .background-image.fade-in {
+            opacity: 0.3;
+        }
+        
+        /* 侧边栏 */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--sidebar-bg);
@@ -49,12 +96,26 @@
             transition: all 0.3s ease;
             z-index: 1000;
             box-shadow: var(--shadow);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            z-index: -1;
         }
         
         .sidebar-header {
             padding: 30px 25px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
+            background: rgba(15, 23, 42, 0.8);
         }
         
         .site-logo {
@@ -73,63 +134,6 @@
             line-height: 1.4;
         }
         
-        /* 导航菜单 */
-        .sidebar-nav {
-            padding: 20px 0;
-        }
-        
-        .nav-section {
-            margin-bottom: 25px;
-        }
-        
-        .nav-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: 0.6;
-            padding: 0 25px 10px;
-            margin-bottom: 10px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .nav-links {
-            list-style: none;
-        }
-        
-        .nav-item {
-            margin: 5px 0;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 25px;
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
-            font-weight: 500;
-        }
-        
-        .nav-link:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            padding-left: 30px;
-        }
-        
-        .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-left: 4px solid var(--accent-color);
-        }
-        
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-            font-size: 1.1rem;
-        }
-        
         /* 主内容区 */
         .main-content {
             flex: 1;
@@ -138,56 +142,88 @@
             transition: all 0.3s ease;
         }
         
-        .content-header {
-            background: var(--content-bg);
-            padding: 25px 40px;
-            border-bottom: 1px solid #e5e7eb;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-color);
-            margin-bottom: 5px;
-        }
-        
-        .breadcrumb {
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-        
         .content-area {
             padding: 40px;
             max-width: 1200px;
+            margin: 0 auto;
         }
         
-        /* 文章卡片 */
         .article-card {
             background: var(--content-bg);
-            border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 25px;
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
             box-shadow: var(--shadow);
-            border: 1px solid #e5e7eb;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .article-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        }
+        
+        /* 页头 */
+        .page-header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 15px;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #64748b;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* 背景切换按钮 */
+        .bg-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .bg-btn {
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
         
-        .article-card:hover {
+        .bg-btn:hover {
+            background: rgba(30, 41, 59, 0.9);
             transform: translateY(-2px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
         /* 响应式设计 */
-        @media (max-width: 1024px) {
-            :root {
-                --sidebar-width: 250px;
-            }
-        }
-        
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -202,49 +238,61 @@
                 margin-left: 0;
             }
             
-            .menu-toggle {
-                display: block;
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                z-index: 1001;
-                background: var(--primary-color);
-                color: white;
-                border: none;
-                padding: 10px;
-                border-radius: 8px;
-                cursor: pointer;
+            .bg-controls {
+                bottom: 10px;
+                right: 10px;
+                flex-direction: column;
             }
             
             .content-area {
                 padding: 20px;
             }
+            
+            .page-title {
+                font-size: 2.2rem;
+            }
         }
         
-        /* 移动端菜单切换 */
         .menu-toggle {
             display: none;
         }
         
-        /* 覆盖层 */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-        
-        .overlay.active {
-            display: block;
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 1001;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 侧边导航栏 -->
+    <!-- 动态背景图片容器 -->
+    <div class="background-container" id="backgroundContainer">
+        <!-- 背景图片会通过JavaScript动态加载 -->
+    </div>
+    
+    <div class="bg-overlay"></div>
+    
+    <!-- 背景控制按钮 -->
+    <div class="bg-controls">
+        <button class="bg-btn" onclick="changeBackground('prev')">
+            <i class="fas fa-chevron-left"></i> 上一张
+        </button>
+        <button class="bg-btn" onclick="changeBackground('next')">
+            下一张 <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    
+    <!-- 侧边栏 -->
     <aside class="sidebar">
         <div class="sidebar-header">
             <div class="site-logo">
@@ -255,82 +303,23 @@
         </div>
         
         <nav class="sidebar-nav">
-            <!-- 主导航 -->
             <div class="nav-section">
                 <div class="nav-title">导航</div>
                 <ul class="nav-links">
+                    {% assign nav_pages = site.html_pages | where_exp:"page","page.nav_order" | sort:"nav_order" %}
+                    {% for nav_page in nav_pages %}
+                    <li class="nav-item">
+                        <a href="{{ nav_page.url }}" class="nav-link {% if page.url == nav_page.url %}active{% endif %}">
+                            <i class="fas fa-{{ nav_page.icon | default: 'file-alt' }}"></i>
+                            <span>{{ nav_page.title }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    
                     <li class="nav-item">
                         <a href="/" class="nav-link {% if page.url == '/' %}active{% endif %}">
                             <i class="fas fa-home"></i>
                             <span>首页</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/posts/" class="nav-link {% if page.url contains '/posts' %}active{% endif %}">
-                            <i class="fas fa-newspaper"></i>
-                            <span>所有文章</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/categories/" class="nav-link {% if page.url contains '/categories' %}active{% endif %}">
-                            <i class="fas fa-folder"></i>
-                            <span>分类</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/tags/" class="nav-link {% if page.url contains '/tags' %}active{% endif %}">
-                            <i class="fas fa-tags"></i>
-                            <span>标签</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            
-            <!-- 文章分类 -->
-            <div class="nav-section">
-                <div class="nav-title">分类</div>
-                <ul class="nav-links">
-                    {% for category in site.categories %}
-                    <li class="nav-item">
-                        <a href="/categories/{{ category[0] | slugify }}/" class="nav-link">
-                            <i class="fas fa-folder-open"></i>
-                            <span>{{ category[0] }}</span>
-                            <small style="margin-left: auto; opacity: 0.7;">({{ category[1].size }})</small>
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            
-            <!-- 最新文章 -->
-            <div class="nav-section">
-                <div class="nav-title">最新文章</div>
-                <ul class="nav-links">
-                    {% for post in site.posts limit:5 %}
-                    <li class="nav-item">
-                        <a href="{{ post.url }}" class="nav-link">
-                            <i class="fas fa-file-alt"></i>
-                            <span>{{ post.title | truncate: 20 }}</span>
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
-            
-            <!-- 外部链接 -->
-            <div class="nav-section">
-                <div class="nav-title">链接</div>
-                <ul class="nav-links">
-                    <li class="nav-item">
-                        <a href="https://github.com/{{ site.github_username }}" class="nav-link" target="_blank">
-                            <i class="fab fa-github"></i>
-                            <span>GitHub</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="mailto:{{ site.email }}" class="nav-link">
-                            <i class="fas fa-envelope"></i>
-                            <span>联系我</span>
                         </a>
                     </li>
                 </ul>
@@ -338,67 +327,237 @@
         </nav>
     </aside>
     
-    <!-- 移动端菜单切换按钮 -->
+    <!-- 移动端菜单按钮 -->
     <button class="menu-toggle" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
     
-    <!-- 覆盖层 -->
-    <div class="overlay" onclick="toggleSidebar()"></div>
-    
     <!-- 主内容区 -->
     <main class="main-content">
-        <header class="content-header">
-            <h1 class="page-title">{{ page.title | default: site.title }}</h1>
-            <div class="breadcrumb">
-                <a href="/">首页</a>
-                {% if page.url != '/' %}
-                <span> / </span>
-                <span>{{ page.title }}</span>
+        <div class="content-area">
+            <div class="page-header">
+                <h1 class="page-title">{{ page.title }}</h1>
+                {% if page.subtitle %}
+                <p class="page-subtitle">{{ page.subtitle }}</p>
                 {% endif %}
             </div>
-        </header>
-        
-        <div class="content-area">
+            
             {{ content }}
         </div>
     </main>
 
+    <!-- 自动驾驶/机器人主题背景图片库 -->
     <script>
-        // 侧边栏切换功能
-        function toggleSidebar() {
-            const sidebar = document.querySelector('.sidebar');
-            const overlay = document.querySelector('.overlay');
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+        // 不同页面的背景图片映射
+        const pageBackgrounds = {
+            // 首页背景图片
+            '/': [
+                'https://images.unsplash.com/photo-1542744094-3a31f272c490?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80'
+            ],
+            
+            // 文章列表页
+            '/posts/': [
+                'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80'
+            ],
+            
+            // 分类页
+            '/categories/': [
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80'
+            ],
+            
+            // 技术文章页（通用）
+            '/2026/': [
+                'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80',
+                'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80'
+            ],
+            
+            // 默认背景图片
+            'default': [
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 自动驾驶汽车
+                'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 机器人手臂
+                'https://images.unsplash.com/photo-1542744094-3a31f272c490?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 未来城市
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // AI芯片
+                'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 神经网络
+                'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 科技电路
+                'https://images.unsplash.com/photo-1555255707-c07966088b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80', // 自动驾驶传感器
+                'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80'  // 机器人实验室
+            ]
+        };
+        
+        // 当前页面的背景图片索引
+        let currentBgIndex = 0;
+        let currentPageBgSet = [];
+        
+        // 页面背景描述
+        const bgDescriptions = {
+            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '自动驾驶汽车在夜晚的城市街道行驶',
+            'https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '工业机器人手臂在工厂中工作',
+            'https://images.unsplash.com/photo-1542744094-3a31f272c490?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '未来城市与自动驾驶交通系统',
+            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '人工智能芯片与电路板',
+            'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '神经网络可视化图表',
+            'https://images.unsplash.com/photo-1542744095-fcf48d80b0fd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '科技电路板与数据流',
+            'https://images.unsplash.com/photo-1555255707-c07966088b7b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '自动驾驶汽车传感器系统',
+            'https://images.unsplash.com/photo-1518709268805-4e9042af2176?ixlib=rb-4.0.3&auto=format&fit=crop&w=2850&q=80': '机器人研发实验室'
+        };
+        
+        // 根据当前页面获取背景图片集
+        function getCurrentPageBgSet() {
+            const currentPath = window.location.pathname;
+            
+            // 匹配最具体的页面路径
+            for (const [path, images] of Object.entries(pageBackgrounds)) {
+                if (currentPath.startsWith(path)) {
+                    return images;
+                }
+            }
+            
+            // 如果是技术文章页（包含日期）
+            if (currentPath.match(/\/\d{4}\//)) {
+                return pageBackgrounds['/2026/'];
+            }
+            
+            // 返回默认背景
+            return pageBackgrounds['default'];
         }
         
-        // 自动高亮当前页面
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.nav-link');
+        // 创建背景图片元素
+        function createBackgroundImage(url) {
+            const img = document.createElement('img');
+            img.className = 'background-image';
+            img.src = url;
+            img.alt = bgDescriptions[url] || '自动驾驶/机器人主题背景';
+            img.loading = 'eager';
             
-            navLinks.forEach(link => {
-                if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
+            img.onload = function() {
+                img.classList.add('fade-in', 'zoomed');
+            };
+            
+            return img;
+        }
+        
+        // 切换背景图片
+        function changeBackground(direction = 'next') {
+            const container = document.getElementById('backgroundContainer');
+            const currentImages = container.querySelectorAll('.background-image');
+            
+            // 计算新索引
+            if (direction === 'next') {
+                currentBgIndex = (currentBgIndex + 1) % currentPageBgSet.length;
+            } else {
+                currentBgIndex = (currentBgIndex - 1 + currentPageBgSet.length) % currentPageBgSet.length;
+            }
+            
+            const newBgUrl = currentPageBgSet[currentBgIndex];
+            
+            // 创建新背景图片
+            const newImage = createBackgroundImage(newBgUrl);
+            
+            // 添加新图片
+            container.appendChild(newImage);
+            
+            // 移除旧图片
+            currentImages.forEach((img, index) => {
+                setTimeout(() => {
+                    img.classList.remove('fade-in', 'zoomed');
+                    setTimeout(() => {
+                        if (container.contains(img)) {
+                            container.removeChild(img);
+                        }
+                    }, 1500);
+                }, index * 200);
+            });
+            
+            // 保存到localStorage
+            saveBackgroundState();
+        }
+        
+        // 保存当前背景状态
+        function saveBackgroundState() {
+            const state = {
+                bgIndex: currentBgIndex,
+                pagePath: window.location.pathname
+            };
+            localStorage.setItem('siteBackgroundState', JSON.stringify(state));
+        }
+        
+        // 加载保存的背景状态
+        function loadBackgroundState() {
+            const saved = localStorage.getItem('siteBackgroundState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                // 如果保存的状态是当前页面
+                if (state.pagePath === window.location.pathname) {
+                    currentBgIndex = state.bgIndex;
+                }
+            }
+        }
+        
+        // 随机选择一个背景
+        function randomBackground() {
+            currentBgIndex = Math.floor(Math.random() * currentPageBgSet.length);
+            changeBackground();
+        }
+        
+        // 初始化背景
+        function initBackground() {
+            loadBackgroundState();
+            currentPageBgSet = getCurrentPageBgSet();
+            
+            const container = document.getElementById('backgroundContainer');
+            const initialUrl = currentPageBgSet[currentBgIndex];
+            
+            // 创建初始背景图片
+            const initialImage = createBackgroundImage(initialUrl);
+            container.appendChild(initialImage);
+            
+            // 自动轮换背景（每30秒）
+            setInterval(() => {
+                changeBackground('next');
+            }, 30000);
+        }
+        
+        // 侧边栏切换
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initBackground();
+            
+            // 添加键盘快捷键
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowRight') {
+                    changeBackground('next');
+                } else if (e.key === 'ArrowLeft') {
+                    changeBackground('prev');
+                } else if (e.key === 'r' || e.key === 'R') {
+                    randomBackground();
                 }
             });
             
-            // 移动端点击链接后关闭侧边栏
+            // 移动端适配
             if (window.innerWidth <= 768) {
-                navLinks.forEach(link => {
-                    link.addEventListener('click', () => {
-                        toggleSidebar();
-                    });
+                const links = document.querySelectorAll('.nav-link');
+                links.forEach(link => {
+                    link.addEventListener('click', toggleSidebar);
                 });
             }
         });
         
-        // 响应式调整
-        window.addEventListener('resize', function() {
-            if (window.innerWidth > 768) {
-                document.querySelector('.sidebar').classList.remove('active');
-                document.querySelector('.overlay').classList.remove('active');
+        // 页面可见性变化时暂停/恢复轮播
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearInterval(window.bgInterval);
+            } else {
+                initBackground();
             }
         });
     </script>
