@@ -1,9 +1,252 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>{{ page.title }}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title }} - {{ site.title }}</title>
+  
+  <!-- 引入Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome图标 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --accent-color: #f687b3;
+      --text-color: #2d3748;
+      --light-color: #f7fafc;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      
+      /* 渐变背景 */
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      background-attachment: fixed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 50px 40px;
+      max-width: 800px;
+      margin: 40px auto;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* 装饰元素 */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+    
+    /* 头部样式 */
+    .site-header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+    }
+    
+    .site-title {
+      font-size: 3.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+    
+    .site-subtitle {
+      font-size: 1.3rem;
+      color: #718096;
+      font-weight: 400;
+      margin-bottom: 30px;
+      position: relative;
+      display: inline-block;
+      padding: 0 20px;
+    }
+    
+    .site-subtitle::before,
+    .site-subtitle::after {
+      content: "⚡";
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.5;
+    }
+    
+    .site-subtitle::before { left: 0; }
+    .site-subtitle::after { right: 0; }
+    
+    /* 文章列表 */
+    .section-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin: 40px 0 25px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+      position: relative;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100px;
+      height: 2px;
+      background: var(--primary-color);
+    }
+    
+    .post-list {
+      list-style: none;
+    }
+    
+    .post-item {
+      background: var(--light-color);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .post-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--primary-color);
+    }
+    
+    .post-link {
+      display: block;
+      text-decoration: none;
+    }
+    
+    .post-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .post-title::before {
+      content: '📖';
+      margin-right: 12px;
+      font-size: 1.2rem;
+    }
+    
+    .post-date {
+      color: #718096;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .post-date::before {
+      content: '📅';
+      margin-right: 8px;
+    }
+    
+    /* 标签装饰 */
+    .tech-tags {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .tech-tag {
+      background: rgba(102, 126, 234, 0.1);
+      color: var(--primary-color);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    
+    /* 页脚 */
+    .site-footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid #e2e8f0;
+      color: #a0aec0;
+      font-size: 0.9rem;
+    }
+    
+    .footer-heart {
+      color: #fc8181;
+      margin: 0 5px;
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 30px 20px;
+        border-radius: 20px;
+      }
+      
+      .site-title {
+        font-size: 2.5rem;
+      }
+      
+      .site-subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .section-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    {{ content }}
+  <div class="container">
+    <header class="site-header">
+      <h1 class="site-title">{{ site.title }}</h1>
+      <p class="site-subtitle">{{ site.description }}</p>
+    </header>
+    
+    <main>
+      {{ content }}
+    </main>
+    
+    <footer class="site-footer">
+      <p>
+        Made with <span class="footer-heart"><i class="fas fa-heart"></i></span> by ppdog
+        • Updated {{ site.time | date: "%Y-%m-%d" }}
+      </p>
+    </footer>
+  </div>
 </body>
 </html>

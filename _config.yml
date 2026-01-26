@@ -1,24 +1,36 @@
-# _config.yml
+# 基本配置
 title: "ppdog的学习笔记"
 description: "自动驾驶与机器人技术学习记录"
-baseurl: ""  # 如果仓库是 username.github.io 就空着
+baseurl: ""
 url: "https://loveppdog.github.io"
 
-# 主题设置
-theme: minima
+# 作者信息
+author:
+  name: "ppdog"
+  email: "your-email@example.com"
 
 # 构建设置
-permalink: /:year/:month/:day/:title.html
-collections:
-  posts:
-    output: true
-    permalink: /:collection/:path/
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# 时区
+timezone: Asia/Shanghai
 
 # 插件
 plugins:
   - jekyll-feed
   - jekyll-seo-tag
   - jekyll-sitemap
+
+# SEO优化
+google_analytics: "UA-XXXXXXXX-X"  # 可选
+
+# 社交链接（可选）
+social_links:
+  github: "loveppdog"
+  twitter: "yourtwitter"
+  email: "your-email@example.com"
 
 # 排除文件
 exclude:

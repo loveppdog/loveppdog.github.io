@@ -2,15 +2,40 @@
 layout: default
 title: 首页
 ---
-<h1>{{ site.title }}</h1>
-<p>{{ site.description }}</p>
 
-<h2>最新文章</h2>
-<ul>
+<h2 class="section-title">最新文章</h2>
+
+<ul class="post-list">
   {% for post in site.posts %}
-    <li>
-      <a href="{{ post.url }}">{{ post.title }}</a>
-      <span class="post-date">{{ post.date | date: "%Y-%m-%d" }}</span>
-    </li>
+  <li class="post-item">
+    <a href="{{ post.url }}" class="post-link">
+      <h3 class="post-title">{{ post.title }}</h3>
+      <div class="post-date">
+        <i class="far fa-calendar-alt"></i>
+        {{ post.date | date: "%Y年%m月%d日" }}
+      </div>
+      
+      {% if post.tags %}
+      <div class="tech-tags">
+        {% for tag in post.tags limit:3 %}
+        <span class="tech-tag">{{ tag }}</span>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      {% if post.excerpt %}
+      <p class="post-excerpt">{{ post.excerpt | strip_html | truncate: 150 }}</p>
+      {% endif %}
+    </a>
+  </li>
   {% endfor %}
 </ul>
+
+<h2 class="section-title" style="margin-top: 60px;">技术栈</h2>
+<div class="tech-tags" style="margin-top: 20px; justify-content: center;">
+  <span class="tech-tag">自动驾驶</span>
+  <span class="tech-tag">机器人</span>
+  <span class="tech-tag">深度学习</span>
+  <span class="tech-tag">计算机视觉</span>
+  <span class="tech-tag">Jekyll</span>
+</div>
