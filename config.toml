@@ -2,6 +2,11 @@ baseURL = "https://loveppdog.github.io/"
 languageCode = "zh-cn"
 title = "自动驾驶/机器人学习笔记"
 theme = "paper"
+theme = "ananke"
+
+[permalinks]
+  posts = "/:year/:month/:day/:slug/"
+
 
 [params]
   author = "ppdog"
