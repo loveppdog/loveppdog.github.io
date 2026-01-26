@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>自动驾驶 on 自动驾驶/机器人学习笔记</title>
-    <link>http://localhost:1313/categories/%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6/</link>
+    <link>https://loveppdog.github.io/categories/%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6/</link>
     <description>Recent content in 自动驾驶 on 自动驾驶/机器人学习笔记</description>
     <generator>Hugo</generator>
     <language>zh-cn</language>
     <lastBuildDate>Fri, 23 Jan 2026 16:58:38 +0800</lastBuildDate>
-    <atom:link href="http://localhost:1313/categories/%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://loveppdog.github.io/categories/%E8%87%AA%E5%8A%A8%E9%A9%BE%E9%A9%B6/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>2026 01 23</title>
-      <link>http://localhost:1313/posts/2026-01-23/</link>
+      <link>https://loveppdog.github.io/posts/2026-01-23/</link>
       <pubDate>Fri, 23 Jan 2026 16:58:38 +0800</pubDate>
-      <guid>http://localhost:1313/posts/2026-01-23/</guid>
+      <guid>https://loveppdog.github.io/posts/2026-01-23/</guid>
       <description></description>
     </item>
   </channel>
