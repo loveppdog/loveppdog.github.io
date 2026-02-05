@@ -37,3 +37,9 @@ defaults:
       type: "pages"
     values:
       layout: "page"
+  
+theme: jekyll-theme-minimal
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
