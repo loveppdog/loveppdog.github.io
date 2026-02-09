@@ -1,0 +1,105 @@
+---
+layout: default
+---
+
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    
+    <div class="post-meta">
+      <time class="post-date" datetime="{{ page.date | date_to_xmlschema }}">
+        <i class="far fa-calendar-alt"></i>
+        {{ page.date | date: "%Y年%m月%d日" }}
+      </time>
+      
+      {% if page.categories %}
+      <div class="post-categories">
+        <i class="far fa-folder"></i>
+        {% for category in page.categories %}
+        <a href="/categories/{{ category | slugify }}/">{{ category }}</a>
+        {% unless forloop.last %}, {% endunless %}
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    
+    {% if page.tags %}
+    <div class="tech-tags" style="margin-top: 20px;">
+      {% for tag in page.tags %}
+      <span class="tech-tag">{{ tag }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </header>
+  
+  <div class="post-content">
+    {{ content }}
+  </div>
+</article>
+
+<style>
+  .post-header {
+    margin-bottom: 40px;
+  }
+  
+  .post-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-color);
+    margin-bottom: 20px;
+  }
+  
+  .post-meta {
+    display: flex;
+    gap: 20px;
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+  
+  .post-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+  
+  .post-content h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 40px 0 20px;
+    color: var(--text-color);
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+  
+  .post-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 30px 0 15px;
+  }
+  
+  .post-content code {
+    font-family: 'JetBrains Mono', monospace;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+  
+  .post-content pre {
+    background: #1a202c;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 20px 0;
+  }
+  
+  .post-content blockquote {
+    border-left: 4px solid var(--primary-color);
+    padding-left: 20px;
+    margin-left: 0;
+    color: #4a5568;
+    font-style: italic;
+  }
+</style>

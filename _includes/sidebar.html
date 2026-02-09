@@ -1,0 +1,36 @@
+<!-- 在分类列表下方添加访客统计 -->
+<div class="sidebar-section">
+  <h3>
+    <i class="fas fa-chart-bar"></i>
+    站点统计
+  </h3>
+  
+  <div class="site-stats">
+    <div class="stat-item">
+      <span class="stat-label">文章总数</span>
+      <span class="stat-value">{{ site.posts | size }}</span>
+    </div>
+    
+    <div class="stat-item">
+      <span class="stat-label">分类数量</span>
+      <span class="stat-value">{{ site.categories | size }}</span>
+    </div>
+    
+    <div class="stat-item">
+      <span class="stat-label">标签数量</span>
+      <span class="stat-value">{{ site.tags | size }}</span>
+    </div>
+    
+    <!-- 总访问量 -->
+    <div class="stat-item">
+      <span class="stat-label">总访问量</span>
+      <span id="busuanzi_value_site_pv" class="stat-value">0</span>
+    </div>
+    
+    <!-- 总访客数 -->
+    <div class="stat-item">
+      <span class="stat-label">总访客数</span>
+      <span id="busuanzi_value_site_uv" class="stat-value">0</span>
+    </div>
+  </div>
+</div>
