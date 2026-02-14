@@ -43,24 +43,3 @@ markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
-
-# 访客统计配置
-busuanzi:
-  enable: true
-  site_pv: true      # 显示站点总访问量
-  page_pv: true      # 显示页面访问量
-  site_uv: true      # 显示站点访客数
-
-# 评论系统配置
-gitalk:
-  enable: true
-  clientID: "Ov23liIQY8vnLT4cX4Oy"      # 从GitHub获取
-  clientSecret: "116323e4f3cfa35c251255a38f89ccaae99669f8"     # 从GitHub获取
-  repo: "loveppdog.github.io"
-  owner: "loveppdog"
-  admin: "loveppdog"
-  language: "zh-CN"
-  perPage: 10
-  pagerDirection: "last"
-  createIssueManually: false
-  distractionFreeMode: false
