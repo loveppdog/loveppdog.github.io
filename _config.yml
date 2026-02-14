@@ -43,3 +43,12 @@ markdown: kramdown
 kramdown:
   input: GFM
   hard_wrap: false
+
+# MathJax配置
+markdown: kramdown
+kramdown:
+  math_engine: mathjax
+  syntax_highlighter: rouge
+
+# 或使用katex
+math: true

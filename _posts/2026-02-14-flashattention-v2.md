@@ -4,6 +4,7 @@ date: 2026-02-14
 layout: post
 categories: [学习]
 tags: [深度学习]
+math: true  # 确保开启数学公式支持
 ---
 
 > 分析日期：2026年2月14日 | 分析者：[ppdog]
