@@ -2,9 +2,11 @@
 title: "FlashAttention"
 date: 2026-02-14
 layout: post
-categories: [算法]
-tags: [算法, 深度学习]
+categories: [学习]
+tags: [深度学习]
 ---
+
+> 分析日期：2026年2月14日 | 分析者：[ppdog]
 
 ## 1. 问题重述与目标
 
