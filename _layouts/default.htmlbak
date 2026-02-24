@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }} - {{ site.title }}</title>
+    
+    <!-- 引入图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+    <!-- 在这里添加数学渲染支持 -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --primary-color: #3b82f6;
+            --secondary-color: #6366f1;
+            --accent-color: #8b5cf6;
+            --text-color: #1f2937;
+            --bg-color: #f8fafc;
+            --sidebar-bg: linear-gradient(180deg, #1e40af 0%, #3730a3 100%);
+            --content-bg: #ffffff;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 侧边栏样式 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+        
+        .sidebar-header {
+            padding: 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .site-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .site-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+        
+        /* 导航菜单 */
+        .sidebar-nav {
+            padding: 20px 0;
+        }
+        
+        .nav-section {
+            margin-bottom: 25px;
+        }
+        
+        .nav-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            padding: 0 25px 10px;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-links {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin: 5px 0;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 25px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-left: 30px;
+        }
+        
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+        }
+        
+        .content-header {
+            background: var(--content-bg);
+            padding: 25px 40px;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+        
+        .breadcrumb {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        
+        .content-area {
+            padding: 40px;
+            max-width: 1200px;
+        }
+        
+        /* 文章卡片 */
+        .article-card {
+            background: var(--content-bg);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1024px) {
+            :root {
+                --sidebar-width: 250px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 300px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1001;
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                padding: 10px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+        }
+        
+        /* 移动端菜单切换 */
+        .menu-toggle {
+            display: none;
+        }
+        
+        /* 覆盖层 */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边导航栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="site-logo">
+                <i class="fas fa-robot"></i>
+                {{ site.title }}
+            </div>
+            <div class="site-description">{{ site.description }}</div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <!-- 主导航 -->
+            <div class="nav-section">
+                <div class="nav-title">导航</div>
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="/" class="nav-link {% if page.url == '/' %}active{% endif %}">
+                            <i class="fas fa-home"></i>
+                            <span>首页</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/posts/" class="nav-link {% if page.url contains '/posts' %}active{% endif %}">
+                            <i class="fas fa-newspaper"></i>
+                            <span>所有文章</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/categories/" class="nav-link {% if page.url contains '/categories' %}active{% endif %}">
+                            <i class="fas fa-folder"></i>
+                            <span>分类</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/tags/" class="nav-link {% if page.url contains '/tags' %}active{% endif %}">
+                            <i class="fas fa-tags"></i>
+                            <span>标签</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- 文章分类 -->
+            <div class="nav-section">
+                <div class="nav-title">分类</div>
+                <ul class="nav-links">
+                    {% for category in site.categories %}
+                    <li class="nav-item">
+                        <a href="/categories/{{ category[0] | slugify }}/" class="nav-link">
+                            <i class="fas fa-folder-open"></i>
+                            <span>{{ category[0] }}</span>
+                            <small style="margin-left: auto; opacity: 0.7;">({{ category[1].size }})</small>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- 最新文章 -->
+            <div class="nav-section">
+                <div class="nav-title">最新文章</div>
+                <ul class="nav-links">
+                    {% for post in site.posts limit:5 %}
+                    <li class="nav-item">
+                        <a href="{{ post.url }}" class="nav-link">
+                            <i class="fas fa-file-alt"></i>
+                            <span>{{ post.title | truncate: 20 }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- 外部链接 -->
+            <div class="nav-section">
+                <div class="nav-title">链接</div>
+                <ul class="nav-links">
+                    <li class="nav-item">
+                        <a href="https://github.com/{{ site.github_username }}" class="nav-link" target="_blank">
+                            <i class="fab fa-github"></i>
+                            <span>GitHub</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="mailto:{{ site.email }}" class="nav-link">
+                            <i class="fas fa-envelope"></i>
+                            <span>联系我</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+    
+    <!-- 移动端菜单切换按钮 -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- 覆盖层 -->
+    <div class="overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <header class="content-header">
+            <h1 class="page-title">{{ page.title | default: site.title }}</h1>
+            <div class="breadcrumb">
+                <a href="/">首页</a>
+                {% if page.url != '/' %}
+                <span> / </span>
+                <span>{{ page.title }}</span>
+                {% endif %}
+            </div>
+        </header>
+        
+        <div class="content-area">
+            {{ content }}
+        </div>
+    </main>
+
+    <script>
+        // 侧边栏切换功能
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        
+        // 自动高亮当前页面
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                }
+            });
+            
+            // 移动端点击链接后关闭侧边栏
+            if (window.innerWidth <= 768) {
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                        toggleSidebar();
+                    });
+                });
+            }
+        });
+        
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                document.querySelector('.sidebar').classList.remove('active');
+                document.querySelector('.overlay').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
