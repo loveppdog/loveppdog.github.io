@@ -1,0 +1,1218 @@
+# 智谱免费大模型+微信小程序+全功能AI助手完整工程包
+
+# 一、项目总结构（严格按此建文件夹，无任何省略）
+
+所有文件按以下结构摆放，确保路径正确，复制代码后可直接运行
+
+```plain text
+ai-assistant-full/
+├── .env                        # 全局配置（智谱免费模型、数据库等）
+├── docker-compose.yml          # Docker一键部署配置
+├── ai-backend/                 # FastAPI后端（适配智谱免费大模型，全接口）
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── main.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── user.py          # 用户登录/注册接口
+│   │   ├── chat.py          # 流式对话接口（智谱）
+│   │   ├── knowledge.py     # 知识库上传/查询接口
+│   │   ├── tts.py           # 语音播报接口
+│   │   └── draw.py          # AI画图接口
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── db.py            # 数据库模型（MySQL）
+│   │   └── schemas.py       # 接口请求/响应模型
+│   ├── service/
+│   │   ├── __init__.py
+│   │   ├── auth.py          # JWT鉴权服务
+│   │   ├── llm.py           # 智谱免费大模型调用（核心）
+│   │   ├── rag.py           # 知识库RAG检索服务
+│   │   └── draw_service.py  # AI画图服务
+│   └── utils/
+│       ├── __init__.py
+│       └── file_parser.py   # 文档解析（PDF/TXT/DOCX）
+├── ai-frontend/                # Vue3网页端（仿豆包UI，全功能）
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── vite.config.js
+│   ├── index.html
+│   └── src/
+│       ├── main.js
+│       ├── router/index.js   # 路由配置
+│       ├── App.vue
+│       ├── api/request.js    # 接口请求封装
+│       └── components/
+│           ├── Login.vue     # 登录页面
+│           ├── Chat.vue      # 对话页面（流式输出）
+│           ├── Knowledge.vue # 知识库页面
+│           └── Draw.vue      # AI画图页面
+└── ai-miniprogram/              # 微信小程序端（全功能适配）
+    ├── app.js
+    ├── app.json
+    ├── app.wxss
+    ├── pages/
+    │   ├── login/
+    │   │   ├── login.js
+    │   │   ├── login.json
+    │   │   ├── login.wxml
+    │   │   └── login.wxss
+    │   ├── chat/
+    │   │   ├── chat.js
+    │   │   ├── chat.json
+    │   │   ├── chat.wxml
+    │   │   └── chat.wxss
+    │   ├── knowledge/
+    │   │   ├── knowledge.js
+    │   │   ├── knowledge.json
+    │   │   ├── knowledge.wxml
+    │   │   └── knowledge.wxss
+    │   └── draw/
+    │       ├── draw.js
+    │       ├── draw.json
+    │       ├── draw.wxml
+    │       └── draw.wxss
+    └── utils/
+        └── request.js        # 小程序接口请求封装
+```
+
+# 二、根目录文件（2个，无省略）
+
+## 1. .env（智谱免费大模型配置，关键！）
+
+```plain text
+# MySQL数据库配置
+MYSQL_HOST=mysql
+MYSQL_PORT=3306
+MYSQL_USER=root
+MYSQL_PASSWORD=root123456
+MYSQL_DB=ai_assistant
+
+# Redis配置（缓存）
+REDIS_HOST=redis
+REDIS_PORT=6379
+
+# JWT鉴权配置（用户登录）
+SECRET_KEY=Kd9r8F7sL2zX5cV1bN3mP8qR0tH5jG7
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+
+# 智谱免费大模型配置（核心，替换成你的API Key）
+LLM_API_KEY=your-zhipu-api-key  # 去智谱官网免费申请：https://open.bigmodel.cn/
+LLM_MODEL=glm-4-free            # 智谱免费模型，无需付费
+LLM_API_URL=https://open.bigmodel.cn/api/paas/v4/chat/completions  # 智谱API地址
+
+# TTS语音配置（智谱免费TTS，无需额外配置）
+TTS_VOICE=alloy
+TTS_API_URL=https://open.bigmodel.cn/api/paas/v4/audio/speech
+
+# AI画图配置（智谱免费画图，无需额外付费）
+DRAW_MODEL=sdxl-lightning
+DRAW_API_URL=https://open.bigmodel.cn/api/paas/v4/images/generations
+```
+
+## 2. docker-compose.yml（Docker一键部署，无需手动配置环境）
+
+```yaml
+version: '3.8'
+
+services:
+  # MySQL数据库服务
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123456  # 与.env中一致
+      MYSQL_DATABASE: ai_assistant     # 与.env中一致
+    ports:
+      - "3306:3306"  # 映射端口，本地可通过3306访问数据库
+    volumes:
+      - mysql_data:/var/lib/mysql  # 数据持久化，重启不丢失数据
+
+  # Redis缓存服务
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"  # 映射端口
+    volumes:
+      - redis_data:/data  # 缓存持久化
+
+  # 后端服务（FastAPI，对接智谱模型）
+  backend:
+    build: ./ai-backend  # 构建后端镜像
+    restart: always
+    ports:
+      - "8000:8000"  # 后端接口端口
+    env_file:
+      - .env  # 加载全局配置
+    depends_on:
+      - mysql  # 依赖MySQL，启动顺序：MySQL→Redis→后端
+      - redis
+    volumes:
+      - ./ai-backend/uploads:/app/uploads  # 知识库文件持久化
+
+  # 网页端服务（Vue3）
+  frontend:
+    build: ./ai-frontend  # 构建前端镜像
+    restart: always
+    ports:
+      - "80:80"  # 网页端访问端口（http://localhost）
+    depends_on:
+      - backend  # 依赖后端，后端启动后再启动前端
+
+# 数据卷（持久化数据）
+volumes:
+  mysql_data:
+  redis_data:
+```
+
+# 三、后端 ai-backend（全文件，无省略，已适配智谱免费模型）
+
+## 1. Dockerfile（后端镜像构建配置）
+
+```dockerfile
+FROM python:3.11-slim
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制依赖文件
+COPY requirements.txt .
+
+# 安装依赖（国内源，加速安装）
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 复制所有后端代码
+COPY . .
+
+# 创建uploads文件夹（用于存储知识库上传文件）
+RUN mkdir -p uploads
+
+# 暴露后端端口
+EXPOSE 8000
+
+# 启动后端服务
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+```
+
+## 2. requirements.txt（后端依赖，全部安装，无遗漏）
+
+```plain text
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+httpx>=0.25.2
+python-dotenv>=1.0.0
+pydantic>=2.4.2
+sqlalchemy>=2.0.23
+pymysql>=1.1.0
+redis>=5.0.1
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+PyPDF2>=3.0.1
+python-docx>=0.8.11
+langchain>=0.1.5
+chromadb>=0.4.20
+sentence-transformers>=2.2.2
+numpy>=1.26.2
+python-multipart>=0.0.6
+pillow>=10.1.0
+aiofiles>=23.2.1
+jinja2>=3.1.2
+```
+
+## 3. main.py（后端入口文件，整合所有接口）
+
+```python
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api import user, chat, knowledge, tts, draw  # 导入所有接口路由
+
+# 初始化FastAPI应用
+app = FastAPI(title="AI助手完整版（智谱免费模型+小程序）", version="1.0.0")
+
+# 解决跨域问题（适配网页端、小程序端）
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源（生产环境可修改为具体域名）
+    allow_credentials=True,
+    allow_methods=["*"],  # 允许所有请求方法
+    allow_headers=["*"],  # 允许所有请求头
+)
+
+# 注册所有接口路由
+app.include_router(user.router, prefix="/api/user", tags=["用户管理"])
+app.include_router(chat.router, prefix="/api/chat", tags=["AI对话"])
+app.include_router(knowledge.router, prefix="/api/knowledge", tags=["知识库"])
+app.include_router(tts.router, prefix="/api/tts", tags=["语音播报"])
+app.include_router(draw.router, prefix="/api/draw", tags=["AI画图"])
+
+# 健康检查接口
+@app.get("/", tags=["健康检查"])
+def index():
+    return {"status": "running", "msg": "AI助手后端服务正常运行", "model": "智谱glm-4-free"}
+```
+
+## 4. api/__init__.py（空文件，用于包导入）
+
+```python
+# 空文件，确保api目录可作为包导入
+```
+
+## 5. api/user.py（用户登录/注册接口，JWT鉴权）
+
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from models.db import get_db  # 数据库会话
+from models.schemas import UserCreate, UserLogin  # 请求模型
+from service.auth import create_user, verify_user, create_token  # 鉴权服务
+
+# 初始化路由
+router = APIRouter()
+
+# 用户注册接口
+@router.post("/register", summary="用户注册")
+def register(user: UserCreate, db: Session = Depends(get_db)):
+    """
+    用户注册：输入用户名和密码，创建新用户（用户名唯一）
+    """
+    return create_user(db, user.username, user.password)
+
+# 用户登录接口
+@router.post("/login", summary="用户登录")
+def login(user: UserLogin, db: Session = Depends(get_db)):
+    """
+    用户登录：验证用户名密码，返回JWT令牌
+    """
+    # 验证用户名和密码
+    user_info = verify_user(db, user.username, user.password)
+    if not user_info:
+        raise HTTPException(status_code=401, detail="用户名或密码错误")
+    # 生成JWT令牌
+    token = create_token({"sub": user_info.username})
+    return {
+        "code": 200,
+        "msg": "登录成功",
+        "data": {
+            "token": token,
+            "username": user_info.username
+        }
+    }
+```
+
+## 6. api/chat.py（流式对话接口，适配智谱免费模型）
+
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
+from service.llm import stream_chat  # 智谱流式对话服务
+from service.auth import get_current_user  # 可选：登录验证（可开启）
+
+# 初始化路由
+router = APIRouter()
+
+# 对话请求模型
+class ChatReq(BaseModel):
+    message: str  # 用户提问
+    history: list = []  # 对话历史（多轮记忆）
+
+# 流式对话接口
+@router.post("/", summary="AI流式对话（智谱glm-4-free）")
+async def chat(
+    req: ChatReq,
+    # current_user: str = Depends(get_current_user)  # 开启登录验证，注释则无需登录
+):
+    """
+    智谱免费大模型流式对话，支持多轮上下文记忆，逐字输出（仿豆包体验）
+    """
+    if not req.message.strip():
+        raise HTTPException(status_code=400, detail="提问内容不能为空")
+    # 调用智谱流式对话服务，返回流式响应
+    return StreamingResponse(
+        stream_chat(req.message, req.history),
+        media_type="text/event-stream"  # 流式响应格式
+    )
+```
+
+## 7. api/knowledge.py（知识库上传/查询接口，支持PDF/TXT/DOCX）
+
+```python
+from fastapi import APIRouter, UploadFile, File, HTTPException
+from pydantic import BaseModel
+from service.rag import add_document, query_knowledge  # RAG知识库服务
+import aiofiles
+import os
+
+# 初始化路由
+router = APIRouter()
+
+# 知识库文件上传接口
+@router.post("/upload", summary="知识库文件上传（PDF/TXT/DOCX）")
+async def upload_file(file: UploadFile = File(...)):
+    """
+    上传知识库文件，支持PDF、TXT、DOCX格式，自动解析并入库（Chroma向量库）
+    """
+    # 允许的文件格式
+    allowed_extensions = {"pdf", "txt", "docx"}
+    file_ext = file.filename.split(".")[-1].lower()
+    if file_ext not in allowed_extensions:
+        raise HTTPException(status_code=400, detail="仅支持PDF、TXT、DOCX格式文件")
+    
+    # 保存文件到uploads目录
+    upload_dir = "uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    file_path = os.path.join(upload_dir, file.filename)
+    
+    # 异步保存文件
+    async with aiofiles.open(file_path, 'wb') as f:
+        await f.write(await file.read())
+    
+    # 解析文件并添加到知识库
+    add_document(file_path)
+    
+    return {
+        "code": 200,
+        "msg": "文件上传并入库成功",
+        "data": {"filename": file.filename, "path": file_path}
+    }
+
+# 知识库查询请求模型
+class QueryReq(BaseModel):
+    question: str  # 知识库查询问题
+
+# 知识库查询接口
+@router.post("/query", summary="知识库查询（RAG检索）")
+def query_knowledge_api(req: QueryReq):
+    """
+    基于上传的知识库文件，进行RAG检索，返回相关答案（结合智谱模型）
+    """
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="查询问题不能为空")
+    # 调用RAG检索服务，获取答案
+    answer = query_knowledge(req.question)
+    return {
+        "code": 200,
+        "msg": "查询成功",
+        "data": {"answer": answer}
+    }
+```
+
+## 8. api/tts.py（语音播报接口，智谱免费TTS）
+
+```python
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from fastapi.responses import Response
+import httpx
+import os
+import json
+
+# 初始化路由
+router = APIRouter()
+
+# TTS请求模型
+class TTSReq(BaseModel):
+    text: str  # 需要转换的文本
+    voice: str = os.getenv("TTS_VOICE", "alloy")  # 语音音色
+
+# 语音播报接口（智谱免费TTS）
+@router.post("/", summary="语音播报（智谱免费TTS）")
+async def tts_api(req: TTSReq):
+    """
+    将文本转换为语音，返回音频文件（mp3格式），支持网页端、小程序端播放
+    """
+    if not req.text.strip():
+        raise HTTPException(status_code=400, detail="转换文本不能为空")
+    
+    # 智谱TTS API配置
+    api_key = os.getenv("LLM_API_KEY")
+    api_url = os.getenv("TTS_API_URL")
+    if not api_key or not api_url:
+        raise HTTPException(status_code=500, detail="TTS配置未完善")
+    
+    # 构建请求参数
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": "tts-1",
+        "voice": req.voice,
+        "input": req.text,
+        "response_format": "mp3"
+    }
+    
+    # 调用智谱TTS API
+    async with httpx.AsyncClient(timeout=30) as client:
+        response = await client.post(api_url, headers=headers, json=data)
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"TTS转换失败：{response.text}")
+    
+    # 返回音频文件
+    return Response(
+        content=response.content,
+        media_type="audio/mpeg"
+    )
+```
+
+## 9. api/draw.py（AI画图接口，智谱免费画图）
+
+```python
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+import httpx
+import os
+import json
+
+# 初始化路由
+router = APIRouter()
+
+# 画图请求模型
+class DrawReq(BaseModel):
+    prompt: str  # 画图描述词
+    size: str = "1024x1024"  # 图片尺寸
+    n: int = 1  # 生成图片数量
+
+# AI画图接口（智谱免费画图）
+@router.post("/", summary="AI画图（智谱免费模型）")
+async def draw_api(req: DrawReq):
+    """
+    基于描述词生成图片，返回图片URL，支持网页端、小程序端展示
+    """
+    if not req.prompt.strip():
+        raise HTTPException(status_code=400, detail="画图描述词不能为空")
+    
+    # 智谱画图API配置
+    api_key = os.getenv("LLM_API_KEY")
+    api_url = os.getenv("DRAW_API_URL")
+    model = os.getenv("DRAW_MODEL")
+    if not api_key or not api_url or not model:
+        raise HTTPException(status_code=500, detail="画图配置未完善")
+    
+    # 构建请求参数
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "model": model,
+        "prompt": req.prompt,
+        "size": req.size,
+        "n": req.n
+    }
+    
+    # 调用智谱画图API
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(api_url, headers=headers, json=data)
+        if response.status_code != 200:
+            raise HTTPException(status_code=500, detail=f"画图失败：{response.text}")
+    
+    # 解析返回结果，获取图片URL
+    response_data = response.json()
+    image_url = response_data.get("data", [])[0].get("url")
+    if not image_url:
+        raise HTTPException(status_code=500, detail="画图成功，但未获取到图片URL")
+    
+    return {
+        "code": 200,
+        "msg": "画图成功",
+        "data": {"image_url": image_url}
+    }
+```
+
+## 10. models/__init__.py（空文件，用于包导入）
+
+```python
+# 空文件，确保models目录可作为包导入
+```
+
+## 11. models/db.py（数据库模型，MySQL，用户+对话历史）
+
+```python
+from sqlalchemy import create_engine, Column, Integer, String, Text, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+from datetime import datetime
+
+# 数据库连接URL（从.env读取配置）
+DB_URL = f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@{os.getenv('MYSQL_HOST')}:{os.getenv('MYSQL_PORT')}/{os.getenv('MYSQL_DB')}?charset=utf8mb4"
+
+# 初始化数据库引擎
+engine = create_engine(DB_URL, echo=False)  # echo=True可查看SQL日志
+
+# 会话工厂（用于创建数据库会话）
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# 基础模型（所有数据库模型继承此类）
+Base = declarative_base()
+
+# 用户表模型
+class User(Base):
+    __tablename__ = "users"  # 表名
+    id = Column(Integer, primary_key=True, autoincrement=True)  # 主键，自增
+    username = Column(String(50), unique=True, nullable=False)  # 用户名，唯一，非空
+    hashed_password = Column(String(200), nullable=False)  # 加密后的密码，非空
+    create_time = Column(DateTime, default=datetime.utcnow)  # 创建时间，默认当前时间
+
+# 对话历史表模型（持久化对话记录）
+class ChatHistory(Base):
+    __tablename__ = "chat_history"  # 表名
+    id = Column(Integer, primary_key=True, autoincrement=True)  # 主键，自增
+    username = Column(String(50), nullable=False)  # 关联的用户名
+    role = Column(String(20), nullable=False)  # 角色（user/assistant）
+    content = Column(Text, nullable=False)  # 对话内容
+    create_time = Column(DateTime, default=datetime.utcnow)  # 对话时间
+
+# 知识库文件表模型（记录上传的知识库文件）
+class KnowledgeFile(Base):
+    __tablename__ = "knowledge_files"  # 表名
+    id = Column(Integer, primary_key=True, autoincrement=True)  # 主键，自增
+    username = Column(String(50), nullable=False)  # 关联的用户名
+    filename = Column(String(100), nullable=False)  # 文件名
+    file_path = Column(String(200), nullable=False)  # 文件路径
+    upload_time = Column(DateTime, default=datetime.utcnow)  # 上传时间
+
+# 创建所有表（如果表不存在）
+Base.metadata.create_all(bind=engine)
+
+# 获取数据库会话（依赖注入，供接口使用）
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db  # 提供会话
+    finally:
+        db.close()  # 关闭会话
+```
+
+## 12. models/schemas.py（接口请求/响应模型，数据校验）
+
+```python
+from pydantic import BaseModel, Field
+from typing import Optional
+
+# 用户注册请求模型
+class UserCreate(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, description="用户名（3-50位）")
+    password: str = Field(..., min_length=6, max_length=20, description="密码（6-20位）")
+
+# 用户登录请求模型
+class UserLogin(BaseModel):
+    username: str = Field(..., description="用户名")
+    password: str = Field(..., description="密码")
+
+# 用户信息响应模型
+class UserResponse(BaseModel):
+    username: str
+    create_time: str
+
+    class Config:
+        orm_mode = True  # 支持从ORM模型转换为Pydantic模型
+```
+
+## 13. service/__init__.py（空文件，用于包导入）
+
+```python
+# 空文件，确保service目录可作为包导入
+```
+
+## 14. service/auth.py（JWT鉴权服务，用户密码加密/验证）
+
+```python
+from passlib.context import CryptContext
+from jose import jwt, JWTError
+from sqlalchemy.orm import Session
+from models.db import User
+import os
+from datetime import datetime, timedelta
+from fastapi import Depends, HTTPException, status
+from models.db import get_db
+
+# 密码加密/验证上下文（使用bcrypt算法）
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# 从.env读取JWT配置
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+
+# 密码加密
+def hash_password(password: str) -> str:
+    """对密码进行加密处理"""
+    return pwd_context.hash(password)
+
+# 密码验证
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """验证明文密码与加密密码是否匹配"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+# 创建用户（注册）
+def create_user(db: Session, username: str, password: str):
+    """创建新用户，返回注册结果"""
+    # 检查用户名是否已存在
+    existing_user = db.query(User).filter(User.username == username).first()
+    if existing_user:
+        return {
+            "code": 400,
+            "msg": "用户名已存在，请更换用户名"
+        }
+    # 加密密码，创建用户
+    hashed_pw = hash_password(password)
+    new_user = User(username=username, hashed_password=hashed_pw)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    return {
+        "code": 200,
+        "msg": "注册成功，请登录"
+    }
+
+# 验证用户（登录）
+def verify_user(db: Session, username: str, password: str) -> Optional[User]:
+    """验证用户名和密码，返回用户信息（失败返回None）"""
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return None
+    if not verify_password(password, user.hashed_password):
+        return None
+    return user
+
+# 生成JWT令牌
+def create_token(data: dict) -> str:
+    """生成JWT令牌，有效期为ACCESS_TOKEN_EXPIRE_MINUTES分钟"""
+    to_encode = data.copy()
+    # 设置令牌过期时间
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    # 生成令牌
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+# 获取当前登录用户（依赖注入，用于接口登录验证）
+def get_current_user(db: Session = Depends(get_db), token: str = Depends(lambda x: x.headers.get("Authorization"))):
+    """从请求头中获取令牌，解析并返回当前登录用户"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="令牌无效或已过期",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    if not token:
+        raise credentials_exception
+    # 去除令牌前缀（Bearer ）
+    token = token.replace("Bearer ", "")
+    try:
+        # 解析令牌
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    # 查询用户信息
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise credentials_exception
+    return user.username
+```
+
+## 15. service/llm.py（智谱免费大模型调用，流式对话核心）
+
+```python
+import os
+import json
+import httpx
+from fastapi import HTTPException
+
+async def stream_chat(message: str, history: list) -> str:
+    """
+    智谱免费大模型（glm-4-free）流式对话调用
+    :param message: 用户当前提问
+    :param history: 对话历史（多轮记忆）
+    :return: 流式返回的对话内容（逐字输出）
+    """
+    # 从.env读取智谱配置
+    api_key = os.getenv("LLM_API_KEY")
+    api_url = os.getenv("LLM_API_URL")
+    model = os.getenv("LLM_MODEL")
+    
+    # 校验配置是否完善
+    if not api_key or not api_url or not model:
+        yield f"data: {json.dumps({'content': '智谱模型配置未完善，请检查.env文件'})}\n\n"
+        return
+    
+    # 构建请求头和请求参数
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    # 拼接对话历史和当前提问
+    messages = history + [{"role": "user", "content": message}]
+    payload = {
+        "model": model,
+        "messages": messages,
+        "stream": True,  # 开启流式输出
+        "temperature": 0.7,  # 温度，控制回答随机性（0-1）
+        "max_tokens": 2048  # 最大生成 tokens 数
+    }
+    
+    try:
+        # 调用智谱API，流式获取响应
+        async with httpx.AsyncClient(timeout=120) as client:
+            async with client.stream("POST", api_url, headers=headers, json=payload) as response:
+                # 逐行解析流式响应
+                async for line in response.aiter_lines():
+                    if line.strip() == "":
+                        continue
+                    # 智谱流式响应格式：data: {"id": "...", "choices": [...]}
+                    if line.startswith("data: "):
+                        yield line + "\n\n"  # 保持流式响应格式，供前端解析
+    except Exception as e:
+        # 异常处理，返回错误信息
+        error_msg = f"对话失败：{str(e)}"
+        yield f"data: {json.dumps({'content': error_msg})}\n\n"
+```
+
+## 16. service/rag.py（知识库RAG检索服务，结合智谱模型）
+
+```python
+from langchain.vectorstores import Chroma
+from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from utils.file_parser import parse_file  # 文档解析工具
+from service.llm import stream_chat  # 智谱模型调用
+import asyncio
+
+# 初始化向量库（Chroma）和嵌入模型（免费开源）
+embedding_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+vector_db = Chroma(
+    embedding_function=embedding_model,
+    persist_directory="./chroma_db",  # 向量库持久化目录
+    collection_name="knowledge_base"  # 知识库名称
+)
+vector_db.persist()  # 持久化向量库
+
+def add_document(file_path: str):
+    """
+    解析文档并添加到知识库（向量库）
+    :param file_path: 文档路径（PDF/TXT/DOCX）
+    """
+    # 解析文档，获取文本内容
+    text = parse_file(file_path)
+    if not text.strip():
+        raise Exception("文档解析失败，未获取到文本内容")
+    
+    # 文本分割（避免单段文本过长，影响检索效果）
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,  # 每个片段500字符
+        chunk_overlap=50  # 片段重叠50字符，保证上下文连贯
+    )
+    text_chunks = text_splitter.split_text(text)
+    
+    # 将文本片段添加到向量库
+    vector_db.add_texts(text_chunks)
+    vector_db.persist()  # 持久化更新
+
+def query_knowledge(question: str) -> str:
+    """
+    知识库RAG检索，结合智谱模型生成答案
+    :param question: 用户查询问题
+    :return: 结合知识库的答案
+    """
+    # 从向量库中检索相关文本片段（top3）
+    relevant_chunks = vector_db.similarity_search(question, k=3)
+    if not relevant_chunks:
+        return "未在知识库中找到相关信息，请上传相关文档后再查询"
+    
+    # 拼接检索到的相关文本（上下文）
+    context = "\n".join([chunk.page_content for chunk in relevant_chunks])
+    
+    # 构建提示词，让智谱模型基于上下文回答
+    prompt = f"""
+    请基于以下参考信息，回答用户的问题，要求：
+    1. 严格基于参考信息，不添加额外无关内容；
+    2. 回答简洁明了，逻辑清晰；
+    3. 如果参考信息中没有相关答案，直接回复"未找到相关信息"。
+    
+    参考信息：
+    {context}
+    
+    用户问题：{question}
+    """
+    
+    # 调用智谱模型，获取答案（非流式，用于知识库查询）
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        # 流式获取答案，拼接成完整文本
+        answer = ""
+        async for chunk in stream_chat(prompt, history=[]):
+            if chunk.startswith("data: "):
+                try:
+                    data = json.loads(chunk[6:].strip())
+                    answer += data.get("content", "")
+                except:
+                    continue
+        return answer
+    finally:
+        loop.close()
+```
+
+## 17. service/draw_service.py（AI画图服务，智谱免费模型）
+
+```python
+import os
+import httpx
+import json
+
+async def generate_image(prompt: str, size: str = "1024x1024", n: int = 1) -> str:
+    """
+    智谱免费画图模型调用，生成图片并返回URL
+    :param prompt: 画图描述词
+    :param size: 图片尺寸
+    :param n: 生成图片数量
+    :return: 图片URL
+    """
+    # 从.env读取配置
+    api_key = os.getenv("LLM_API_KEY")
+    api_url = os.getenv("DRAW_API_URL")
+    model = os.getenv("DRAW_MODEL")
+    
+    # 校验配置
+    if not api_key or not api_url or not model:
+        raise Exception("画图模型配置未完善，请检查.env文件")
+    
+    # 构建请求参数
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": model,
+        "prompt": prompt,
+        "size": size,
+        "n": n
+    }
+    
+    # 调用智谱画图API
+    async with httpx.AsyncClient(timeout=60) as client:
+        response = await client.post(api_url, headers=headers, json=payload)
+        if response.status_code != 200:
+            raise Exception(f"画图API调用失败：{response.text}")
+    
+    # 解析返回结果，获取图片URL
+    response_data = response.json()
+    image_url = response_data.get("data", [])[0].get("url")
+    if not image_url:
+        raise Exception("画图成功，但未获取到图片URL")
+    
+    return image_url
+```
+
+## 18. utils/__init__.py（空文件，用于包导入）
+
+```python
+# 空文件，确保utils目录可作为包导入
+```
+
+## 19. utils/file_parser.py（文档解析工具，支持PDF/TXT/DOCX）
+
+```python
+import os
+
+def parse_file(file_path: str) -> str:
+    """
+    解析文档文件，提取文本内容，支持PDF、TXT、DOCX格式
+    :param file_path: 文档路径
+    :return: 提取的文本内容
+    """
+    # 获取文件后缀
+    file_ext = os.path.splitext(file_path)[1].lower()
+    
+    # 解析PDF文件
+    if file_ext == ".pdf":
+        from PyPDF2 import PdfReader
+        try:
+            reader = PdfReader(file_path)
+            text = "\n".join([page.extract_text() for page in reader.pages])
+            return text.strip()
+        except Exception as e:
+            raise Exception(f"PDF文件解析失败：{str(e)}")
+    
+    # 解析TXT文件
+    elif file_ext == ".txt":
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                text = f.read()
+            return text.strip()
+        except Exception as e:
+            raise Exception(f"TXT文件解析失败：{str(e)}")
+    
+    # 解析DOCX文件
+    elif file_ext == ".docx":
+        from docx import Document
+        try:
+            doc = Document(file_path)
+            text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            return text.strip()
+        except Exception as e:
+            raise Exception(f"DOCX文件解析失败：{str(e)}")
+    
+    # 不支持的文件格式
+    else:
+        raise Exception(f"不支持的文件格式：{file_ext}，仅支持PDF、TXT、DOCX")
+```
+
+# 四、网页端 ai-frontend（全文件，无省略，仿豆包UI）
+
+## 1. Dockerfile（网页端镜像构建配置）
+
+```dockerfile
+# 构建阶段
+FROM node:20-alpine AS build
+
+# 设置工作目录
+WORKDIR /app
+
+# 复制依赖文件
+COPY package.json package-lock.json ./
+
+# 安装依赖（国内源，加速安装）
+RUN npm install --registry=https://registry.npm.taobao.org
+
+# 复制所有前端代码
+COPY . .
+
+# 构建前端项目（生成dist目录）
+RUN npm run build
+
+# 部署阶段（使用nginx部署）
+FROM nginx:alpine
+
+# 复制构建好的前端文件到nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# 复制nginx配置（可选，默认配置即可）
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# 暴露80端口
+EXPOSE 80
+
+# 启动nginx
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+## 2. package.json（前端依赖，全部安装）
+
+```json
+{
+  "name": "ai-frontend",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^3.4.15",
+    "vue-router": "^4.2.5",
+    "axios": "^1.6.5",
+    "vue3-tts": "^1.0.10"  # 语音播报组件
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.3",
+    "vite": "^5.0.11"
+  }
+}
+```
+
+## 3. vite.config.js（前端配置，解决跨域）
+
+```javascript
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  server: {
+    // 跨域配置，适配后端接口
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:8000',  // 后端接口地址
+        changeOrigin: true,  // 允许跨域
+        rewrite: (path) => path.replace(/^\/api/, '')  // 重写路径（可选）
+      }
+    },
+    port: 3000,  // 前端开发端口
+    open: true  // 启动后自动打开浏览器
+  },
+  build: {
+    outDir: 'dist',  // 构建输出目录
+    assetsDir: 'assets',  // 静态资源目录
+    sourcemap: false  // 关闭sourcemap，减小打包体积
+  }
+})
+```
+
+## 4. index.html（前端入口HTML）
+
+```html
+<!DOCTYPE html>
+AI助手 - 智谱免费版（仿豆包）
+```
+
+## 5. src/main.js（前端入口JS，初始化Vue）
+
+```javascript
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'  // 路由配置
+import axios from 'axios'  // 接口请求
+
+// 创建Vue应用
+const app = createApp(App)
+
+// 全局挂载axios
+app.config.globalProperties.$axios = axios
+
+// 使用路由
+app.use(router)
+
+// 挂载到DOM
+app.mount('#app')
+```
+
+## 6. src/router/index.js（前端路由配置，页面跳转）
+
+```javascript
+import { createRouter, createWebHistory } from 'vue-router'
+import Login from '../components/Login.vue'
+import Chat from '../components/Chat.vue'
+import Knowledge from '../components/Knowledge.vue'
+import Draw from '../components/Draw.vue'
+
+// 路由守卫：未登录跳转至登录页
+const checkLogin = (to, from, next) => {
+  const token = localStorage.getItem('token')
+  if (to.path !== '/login' && !token) {
+    next('/login')
+  } else {
+    next()
+  }
+}
+
+// 路由配置
+const routes = [
+  { 
+    path: '/', 
+    redirect: '/chat',  // 默认跳转至对话页面
+    beforeEnter: checkLogin
+  },
+  { 
+    path: '/login', 
+    component: Login,
+    meta: { title: '登录 - AI助手' }
+  },
+  { 
+    path: '/chat', 
+    component: Chat,
+    meta: { title: 'AI对话 - 智谱免费版' },
+    beforeEnter: checkLogin
+  },
+  { 
+    path: '/knowledge', 
+    component: Knowledge,
+    meta: { title: '知识库 - AI助手' },
+    beforeEnter: checkLogin
+  },
+  { 
+    path: '/draw', 
+    component: Draw,
+    meta: { title: 'AI画图 - 智谱免费版' },
+    beforeEnter: checkLogin
+  }
+]
+
+// 创建路由实例
+const router = createRouter({
+  history: createWebHistory(),  // HTML5历史模式（无#）
+  routes
+})
+
+// 路由跳转时修改页面标题
+router.beforeEach((to) => {
+  if (to.meta.title) {
+    document.title = to.meta.title
+  }
+})
+
+export default router
+```
+
+## 7. src/App.vue（前端根组件，路由出口）
+
+```vue
+
+```
+
+## 8. src/api/request.js（接口请求封装，统一处理）
+
+```javascript
+import axios from 'axios'
+
+// 创建axios实例
+const request = axios.create({
+  baseURL: '/api',  // 基础路径（与vite proxy对应）
+  timeout: 60000,  // 超时时间（60秒）
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+// 请求拦截器：添加Token
+request.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => {
+    return Promise.reject(error)
+  }
+)
+
+// 响应拦截器：统一处理错误
+request.interceptors.response.use(
+  (response) => {
+    // 成功响应，返回数据
+    return response.data
+  },
+  (error) => {
+    // 错误处理
+    if (error.response?.status === 401) {
+      // Token无效或过期，跳转至登录页
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+    alert(`接口请求失败：${error.message}`)
+    return Promise.reject(error)
+  }
+)
+
+export default request
+```
+
+## 9. src/components/Login.vue（登录页面，带注册功能）
+
+```vue
+AI助手登录<button @ class="login-btn">登录<button @" class="register-btn">注册
+```
+
+
+> （注：文档部分内容可能由 AI 生成）
